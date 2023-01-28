@@ -1,54 +1,37 @@
 import axios from "axios";
 import expect from "expect";
-import { concat } from "lodash";
 
-
-/**
- * Для проверки, что jest настроен правильно. Можно удалить
- 
-test('adds 1 + 2 to equal 3', () => {
-    expect(1 + 2).toBe(3);
-})*/
 
 const basicUrl = 'https://bookstore.demoqa.com'
+/**
+ * пока не реализован рандом correctLogin надо менять перед каждым запуском 
+ * + на данный момент тесты зависимы (имеет значение порядок запуска)
+ */
+const correctLogin = "User24"
+const correctUser = {
+    userName: correctLogin,
+    password: "testPass11!",
+}
 
 /**
  * раздел для тестов /Account/v1/User
  */
 describe('create user test: /Account/v1/User', () => {
-    test.skip('create new user', async () => {
+    test('create new user', async () => {
         const newUser = {
             method: "POST",
             url: `${basicUrl}/account/v1/user`,
-            data: {
-              userName: "User20",
-              password: "testPass20!",
-            },
+            data: correctUser
           }
         const response = await axios(newUser);
         expect(response.status).toBe(201)
-        expect(response.data.username).toEqual("User20")
-        /* почему не происходит удаление - не понятно. вместо удаления - ответ 401 User not autorised
-        const idUser = response.data.userID
-        console.log(response.data)
-        console.log('UserId = ' + idUser)
-        console.log(`${basicUrl}/account/v1/user/${idUser}`)
-        const delUser = {
-            method: "DELETE",
-            url: `${basicUrl}/account/v1/user/${idUser}`,
-        }
-        const resp = await axios(delUser);
-        //console.log(resp.data)
-        expect(resp.status).toBe(200)*/        
+        expect(response.data.username).toEqual(correctLogin)   
     })
     test('create new user with existing login', async () => {
         const newUser = {
             method: "POST",
             url: `${basicUrl}/account/v1/user`,
-            data: {
-              userName: "User20",
-              password: "testPass20!",
-            },
+            data: correctUser
           }
         
         try {
@@ -78,7 +61,42 @@ describe('create user test: /Account/v1/User', () => {
         }
         
     })
+})
 
-    
-   
+/**
+ * раздел для тестов /Account/v1/GenerateToken
+ */
+describe('create token tests: /Account/v1/GenerateToken', () => {
+    test('create new token', async () => {
+        const makeToken = {
+            method: "POST",
+            url: `${basicUrl}/account/v1/GenerateToken`,
+            data: correctUser
+          }
+        const response = await axios(makeToken);
+        expect(response.status).toEqual(200);
+        expect(typeof response.data.token).toEqual("string")
+        expect(response.data.expires).not.toBe(null)
+        expect(response.data.status).not.toEqual("Failed")
+
+    })
+    test('do not create', async () => {
+        const tokenError = {
+            method: "POST",
+            url: `${basicUrl}/account/v1/GenerateToken`,
+            data: {
+                userName: "User21",
+                password: "testPass2",
+            },
+          }
+        const response = await axios(tokenError);
+        expect(response.status).toEqual(200);
+        expect(response.data.token).toEqual(null)
+        expect(response.data.expires).toBe(null)
+        expect(response.data.status).toEqual("Failed")
+        expect(response.data.result).toEqual("User authorization failed.")
+              
+
+    })
+
 })
