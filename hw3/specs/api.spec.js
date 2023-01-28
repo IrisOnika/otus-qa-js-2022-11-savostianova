@@ -7,7 +7,7 @@ const basicUrl = 'https://bookstore.demoqa.com'
  * пока не реализован рандом correctLogin надо менять перед каждым запуском 
  * + на данный момент тесты зависимы (имеет значение порядок запуска)
  */
-const correctLogin = "User24"
+const correctLogin = "User26"
 const correctUser = {
     userName: correctLogin,
     password: "testPass11!",
@@ -85,7 +85,7 @@ describe('create token tests: /Account/v1/GenerateToken', () => {
             method: "POST",
             url: `${basicUrl}/account/v1/GenerateToken`,
             data: {
-                userName: "User21",
+                userName: correctLogin,
                 password: "testPass2",
             },
           }
@@ -95,6 +95,7 @@ describe('create token tests: /Account/v1/GenerateToken', () => {
         expect(response.data.expires).toBe(null)
         expect(response.data.status).toEqual("Failed")
         expect(response.data.result).toEqual("User authorization failed.")
+        
               
 
     })
